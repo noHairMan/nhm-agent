@@ -2,5 +2,37 @@
 name = "nhm-agent"
 version = "1.0.0"
 description = "Add your description here"
+authors = [
+    { name = "xuheng.zong", email = "79689669+nohairman@users.noreply.github.com" }
+]
 requires-python = ">=3.12,<3.15"
-dependencies = []
+dependencies = [
+    "dynaconf>=3.2.12",
+    "langchain>=1.2.0",
+    "langchain-ollama>=1.0.1",
+    "langchain-openai>=1.1.6",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+]
+
+[tool.uv.sources]
+
+[[tool.uv.index]]
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+default = true
+
+[tool.black]
+line_length = 120
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+py_version = 314
+skip_gitignore = true
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_first_party = ["mercedes"]
+multi_line_output = 3
+line_length = 120
