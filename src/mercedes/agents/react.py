@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Annotated, Sequence
 
 from langchain_core.messages import BaseMessage
@@ -10,6 +11,7 @@ from pydantic import BaseModel, Field
 from mercedes.core.agent import BaseAgent
 from mercedes.core.llm import get_llm
 from mercedes.tools.basic import get_default_tools
+from mercedes.utils.log import logger
 
 
 class AgentState(BaseModel):
@@ -63,7 +65,7 @@ class ReActAgent(BaseAgent):
         inputs = {"messages": [("user", input_text)]}
         async for output in self.graph.astream(inputs):
             for key, value in output.items():
-                print(f"Node '{key}' finished.")
+                logger.debug(f"Node '{key}' finished. value: {pformat(value)}")
 
         # final_state = await self.graph.aget_state(inputs)
         # 直接使用 ainvoke 获取最终状态

@@ -17,4 +17,7 @@ def get_datetime() -> str:
 
 
 def get_default_tools():
-    return [get_weather, get_datetime]
+    return [
+        get_weather,
+        get_datetime,
+    ]

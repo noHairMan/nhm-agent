@@ -1,11 +1,16 @@
 import os
 
-from dynaconf import Dynaconf
+from mercedes.utils.functional import SimpleLazyObject
 
-from mercedes import conf
 
-settings = Dynaconf(
-    envvar_prefix=conf.APP,
-    settings_files=[conf.BASE_DIR / "conf.py"],
-    load_dotenv=True,
-)
+def _get_settings():
+    from dynaconf import Dynaconf
+
+    return Dynaconf(
+        envvar_prefix=os.environ.get("MERCEDES_APP"),
+        settings_files=["/".join(os.environ.get("MERCEDES_SETTINGS_MODULE", "").split(".")) + ".py"],
+        load_dotenv=True,
+    )
+
+
+settings = SimpleLazyObject(_get_settings)

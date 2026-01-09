@@ -39,7 +39,7 @@ python src/main.py
 ### 4. 调用接口
 你可以使用 `src/mercedes/tests/test_api.py` 进行测试，或者直接使用 curl：
 ```bash
-curl -X POST http://127.0.0.1:8000/api/v1/chat \
+curl -X POST http://127.0.0.1:8000/api/chat \
      -H "Content-Type: application/json" \
      -d '{"message": "现在几点了？"}'
 ```
