@@ -8,13 +8,19 @@ authors = [
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "dynaconf>=3.2.12",
+    "fastapi>=0.127.0",
+    "httpx>=0.28.1",
     "langchain>=1.2.0",
     "langchain-ollama>=1.0.1",
     "langchain-openai>=1.1.6",
+    "langgraph>=1.0.5",
+    "pydantic-settings>=2.12.0",
+    "uvicorn>=0.40.0",
 ]
 
 [dependency-groups]
 dev = [
+    "langgraph-cli[inmem]>=0.4.11",
     "pre-commit>=4.5.1",
 ]
 

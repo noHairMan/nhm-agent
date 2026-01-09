@@ -1,0 +1,9 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./src/mercedes/agents/graph.py:agent"
+  },
+  "env": ".env",
+  "image_distro": "wolfi"
+}
