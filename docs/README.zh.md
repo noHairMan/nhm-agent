@@ -1,5 +1,7 @@
 # NHM Agent Platform
 
+[简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md)
+
 这是一个从 0 搭建的 Agent 平台基础架构，基于 FastAPI 和 LangGraph。
 
 ## 核心特性
