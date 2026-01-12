@@ -1,12 +1,14 @@
 # NHM代理平台
 
+[簡體中文](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本人](/docs/README.ja.md)\|[繁體中文](/docs/README.zh-TW.md)
+
 這是一個從 0 搭建的 Agent 平台基礎架構，基於 FastAPI 和 LangGraph。
 
 ## 核心特性
 
 -   **多 Agent 管理**: 通過`AgentRegistry`統一管理不同的 Agent。
 -   **ReAct 模式**: 內置支持推理與行動 (ReAct) 模式的 Agent。
--   **工具擴展**: 簡單的裝飾器模式定義工具，可供 Agent 調用。
+-   **工具擴展**: 简单的装饰器模式定义工具，可供 Agent 调用。
 -   **API 訪問**: 完善的 RESTful API 接口。
 
 ## 項目結構
