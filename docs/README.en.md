@@ -1,5 +1,7 @@
 # NHM Agent Platform
 
+[Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
+
 This is an Agent platform infrastructure built from scratch, based on FastAPI and LangGraph.
 
 ## Core features
@@ -24,7 +26,7 @@ src/
 
 ## quick start
 
-### 1. 安装依赖
+### 1. Install dependencies
 
 Make sure it is installed`uv`, then run:
 
@@ -34,7 +36,7 @@ uv sync
 
 ### 2. Configure the environment
 
-Revise`src/mercedes/conf.py` 或通过 `.env`File configuration for Ollama`BASE_URL`。
+Revise`src/mercedes/conf.py`or via`.env`File configuration for Ollama`BASE_URL`。
 
 ### 3. Start the service
 
@@ -44,7 +46,7 @@ python src/main.py
 
 ### 4. Call interface
 
-你可以使用 `src/mercedes/tests/test_api.py`To test, or use curl directly:
+you can use`src/mercedes/tests/test_api.py`To test, or use curl directly:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/chat \
