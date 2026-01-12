@@ -1,5 +1,7 @@
 # NHM エージェント プラットフォーム
 
+[簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体中文](/docs/README.zh-TW.md)
+
 これは、FastAPI と LangGraph に基づいて最初から構築されたエージェント プラットフォーム インフラストラクチャです。
 
 ## 核心特性
@@ -34,7 +36,7 @@ uv sync
 
 ### 2. 環境を構成する
 
-改訂`src/mercedes/conf.py`または経由`.env`Ollama のファイル構成`BASE_URL`。
+改訂`src/mercedes/conf.py` 或通过 `.env`Ollama のファイル構成`BASE_URL`。
 
 ### 3. サービスを開始する
 
