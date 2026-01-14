@@ -2,15 +2,15 @@ from pprint import pformat
 from typing import Annotated, Sequence
 
 from langchain_core.messages import BaseMessage
-from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from mercedes.core.agent import BaseAgent
 from mercedes.core.llm import get_llm
 from mercedes.tools.basic import get_default_tools
+from mercedes.tools.mcp import get_mcp_tools_and_sessions
 from mercedes.utils.log import logger
 
 
@@ -23,8 +23,20 @@ class ReActAgent(BaseAgent):
         super().__init__(name, model_name)
         self.llm = get_llm(model_name)
         self.tools = get_default_tools()
+        self.graph = None
+        self.llm_with_tools = None
+
+    async def initialize(self):
+        """异步初始化，加载 MCP 工具并构建图"""
+        mcp_tools = await get_mcp_tools_and_sessions()
+        if mcp_tools:
+            self.tools.extend(mcp_tools)
+
         self.llm_with_tools = self.llm.bind_tools(self.tools)
         self.graph = self._build_graph()
+
+    async def close(self):
+        pass
 
     def _build_graph(self):
         workflow = StateGraph(AgentState)
@@ -34,7 +46,7 @@ class ReActAgent(BaseAgent):
             response = self.llm_with_tools.invoke(state.messages)
             return {"messages": [response]}
 
-        tool_node = ToolNode(self.tools)
+        tool_node = ToolNode(self.tools, handle_tool_errors=True)  # 工具错误会返回错误以让大模型自动纠错
 
         workflow.add_node("agent", call_model)
         workflow.add_node("action", tool_node)
@@ -62,12 +74,13 @@ class ReActAgent(BaseAgent):
         return workflow.compile()
 
     async def run(self, input_text: str) -> str:
+        if self.graph is None:
+            await self.initialize()
+
         inputs = {"messages": [("user", input_text)]}
         async for output in self.graph.astream(inputs):
             for key, value in output.items():
-                logger.debug(f"Node '{key}' finished. value: {pformat(value)}")
+                logger.info(f"Node '{key}' finished. value: {pformat(value)}")
 
-        # final_state = await self.graph.aget_state(inputs)
-        # 直接使用 ainvoke 获取最终状态
         state = await self.graph.ainvoke(inputs)
         return state["messages"][-1].content

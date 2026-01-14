@@ -10,7 +10,7 @@ def get_unicorn_server():
     config = uvicorn.Config(
         "mercedes.app:app",
         host="0.0.0.0",
-        port=8000,
+        port=4000,
         reload=True,
         log_config=settings.LOGGING,
     )
