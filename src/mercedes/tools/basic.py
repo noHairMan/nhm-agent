@@ -1,11 +1,7 @@
+import ujson
+from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_core.tools import tool
-
-
-@tool
-def get_weather(city: str) -> str:
-    """获取指定城市的实时天气信息。"""
-    # 这里是一个 mock 实现
-    return f"{city} 的天气是晴朗，25度。"
+from pydantic import BaseModel
 
 
 @tool
@@ -16,8 +12,25 @@ def get_datetime() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
+duck_search = DuckDuckGoSearchResults(output_format="json")
+
+
+class SearchJsonResult(BaseModel):
+    snippet: str
+    title: str
+    link: str
+
+
+@tool("web_search")
+async def search(query: str) -> list[SearchJsonResult]:
+    """Search the web for information."""
+    content = await duck_search.ainvoke(query)
+    results = ujson.loads(content)
+    return results
+
+
 def get_default_tools():
     return [
-        get_weather,
         get_datetime,
+        search,
     ]
