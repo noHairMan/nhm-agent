@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from mercedes.core.registry import registry
+from mercedes.utils.log import logger
 
 router = APIRouter()
 
@@ -17,5 +18,7 @@ async def chat(request: ChatRequest):
     if not agent:
         raise HTTPException(status_code=404, detail=f"Agent {request.agent_id} not found")
 
-    reply = await agent.run(request.message)
-    return {"reply": reply, "agent_id": request.agent_id}
+    output = None
+    async for output in agent.astream(request.message):
+        logger.info(output)
+    return output

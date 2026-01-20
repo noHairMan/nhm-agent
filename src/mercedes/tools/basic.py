@@ -34,3 +34,6 @@ def get_default_tools():
         get_datetime,
         search,
     ]
+
+
+tools = get_default_tools()
