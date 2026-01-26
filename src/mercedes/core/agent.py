@@ -19,9 +19,9 @@ class BaseAgent(ABC):
         self.model_name = model_name
 
     @abstractmethod
-    async def ainvoke(self, input_text: str):
+    async def ainvoke(self, input_text: str, config: dict):
         raise NotImplementedError("Subclass must implement this method")
 
     @abstractmethod
-    async def astream(self, input_text: str):
+    async def astream(self, input_text: str, config: dict):
         raise NotImplementedError("Subclass must implement this method")

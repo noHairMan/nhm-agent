@@ -10,13 +10,13 @@ from .graph import graph
 
 
 class ReactAgent(BaseAgent):
-    async def ainvoke(self, input_text: str):
+    async def ainvoke(self, input_text: str, config: dict):
         inputs = {"messages": [("user", input_text)]}
         context = {"model": None}
-        return await graph.ainvoke(inputs, context=context, stream_mode="values")
+        return await graph.ainvoke(inputs, context=context, stream_mode="values", config=config)
 
-    async def astream(self, input_text: str):
+    async def astream(self, input_text: str, config: dict):
         inputs = {"messages": [("user", input_text)]}
         context = {"model": None}
-        async for output in graph.astream(inputs, context=context, stream_mode="values"):
+        async for output in graph.astream(inputs, context=context, stream_mode="values", config=config):
             yield output

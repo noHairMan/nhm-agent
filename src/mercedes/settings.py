@@ -8,6 +8,8 @@ BASE_DIR: Final = Path(__file__).resolve().parent
 DEBUG = False
 
 OLLAMA_BASE_URL = "http://localhost:11434"
+OPENAI_BASE_URL = "https://api.siliconflow.cn/v1"
+OPENAI_API_KEY = ""
 DEFAULT_OLLAMA_MODEL = "gpt-oss:20b"
 
 LOG_LEVEL = logging.getLevelName(logging.INFO)
