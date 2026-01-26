@@ -32,7 +32,7 @@ dev = [
 [tool.uv.sources]
 
 [[tool.uv.index]]
-url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+url = "https://pypi.python.org/simple/"
 default = true
 
 [tool.black]
