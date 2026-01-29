@@ -3,6 +3,8 @@ from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_core.tools import tool
 from pydantic import BaseModel
 
+from mercedes.tools.rag import rag_add_document, rag_search
+
 
 @tool
 def get_datetime() -> str:
@@ -33,6 +35,8 @@ def get_default_tools():
     return [
         get_datetime,
         search,
+        rag_search,
+        rag_add_document,
     ]
 
 

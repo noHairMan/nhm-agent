@@ -13,11 +13,11 @@ def get_llm(model: str = None):
     )
 
 
-def get_llm(model: str = None):
-    model = model or settings.DEFAULT_MODEL
-    return ChatOpenAI(
-        model=model,
-        base_url=settings.OPENAI_BASE_URL,
-        api_key=settings.OPENAI_API_KEY,
-        temperature=1,
-    )
+# def get_llm(model: str = None):
+#     model = model or settings.DEFAULT_MODEL
+#     return ChatOpenAI(
+#         model=model,
+#         base_url=settings.OPENAI_BASE_URL,
+#         api_key=settings.OPENAI_API_KEY,
+#         temperature=1,
+#     )
