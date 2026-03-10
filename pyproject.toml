@@ -5,7 +5,7 @@ description = "Add your description here"
 authors = [
     { name = "xuheng.zong", email = "79689669+nohairman@users.noreply.github.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "ddgs>=9.10.0",
     "duckduckgo-search>=8.1.1",
@@ -42,7 +42,7 @@ line_length = 120
 [tool.isort]
 profile = "black"
 src_paths = ["src"]
-py_version = 314
+py_version = 313
 skip_gitignore = true
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 known_first_party = ["mercedes"]
