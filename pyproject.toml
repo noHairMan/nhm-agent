@@ -5,7 +5,7 @@ description = "Add your description here"
 authors = [
     { name = "xuheng.zong", email = "79689669+nohairman@users.noreply.github.com" }
 ]
-requires-python = ">=3.12,<3.15"
+requires-python = ">=3.12"
 dependencies = [
     "ddgs>=9.10.0",
     "duckduckgo-search>=8.1.1",
