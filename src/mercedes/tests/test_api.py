@@ -5,7 +5,7 @@ import httpx
 
 async def test_chat():
     url = "http://127.0.0.1:8000/api/chat"
-    payload = {"message": "北京现在的天气怎么样？", "agent_id": "default"}
+    payload = {"message": "北京现在的天气怎么样？", "agent_id": "react"}
 
     print(f"发送请求: {payload}")
     try:

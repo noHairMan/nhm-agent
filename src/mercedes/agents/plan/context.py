@@ -1,0 +1,45 @@
+"""Define the configurable parameters for the agent."""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass, field, fields
+from typing import Annotated
+
+from mercedes.agents.plan import prompts
+
+
+@dataclass(kw_only=True)
+class Context:
+    """The context for the agent."""
+
+    planner_prompt: str = field(
+        default=prompts.PLANNER_PROMPT,
+        metadata={
+            "description": "The planner prompt to use for the agent's interactions.",
+        },
+    )
+
+    replanner_prompt: str = field(
+        default=prompts.RE_PLANNER_PROMPT,
+        metadata={
+            "description": "The replanner prompt to use for the agent's interactions.",
+        },
+    )
+
+    model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
+        default="anthropic/claude-sonnet-4-5-20250929",
+        metadata={
+            "description": "The name of the language model to use for the agent's main interactions. "
+            "Should be in the form: provider/model-name.",
+        },
+    )
+
+    def __post_init__(self) -> None:
+        """Fetch env vars for attributes that were not passed as args."""
+        for f in fields(self):
+            if not f.init:
+                continue
+
+            if getattr(self, f.name) == f.default:
+                setattr(self, f.name, os.environ.get(f.name.upper(), f.default))

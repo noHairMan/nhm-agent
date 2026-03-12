@@ -12,7 +12,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     message: str
-    agent_id: str = "default"
+    agent_id: str = "react"
     thread_id: UUID = Field(default_factory=uuid.uuid4)
 
 
