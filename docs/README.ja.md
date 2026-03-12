@@ -7,17 +7,18 @@
 ## 核心特性
 
 -   **多 Agent 管理**： 合格`AgentRegistry`異なるエージェントを一元管理します。
--   **反応モード**: Reasoning and Action (ReAct) モードをサポートする組み込みエージェント。
+-   **反応モード**: Reasoning and Action (ReAct) モードをサポートするエージェント (`agent_id="react"`)。
+-   **計画と実行のパターン**: 計画実行モードをサポートするエージェント (`agent_id="plan"`)。
 -   **ツール拡張機能**: エージェントから呼び出せるシンプルなデコレータパターン定義ツール。
 -   **APIアクセス**: 完全な RESTful API インターフェイス。
 
-## 项目结构
+## プロジェクトの構造
 
 ```text
 src/
 ├── mercedes/
 │   ├── api/          # FastAPI 路由与接口
-│   ├── agents/       # 具体 Agent 实现 (如 ReActAgent)
+│   ├── agents/       # 具体 Agent 实现 (包含 react 和 plan 模式)
 │   ├── core/         # 核心抽象 (BaseAgent, Registry, LLM 配置)
 │   ├── tools/        # 外部工具定义 (天气、时间等)
 │   └── utils/        # 通用工具函数与配置
@@ -36,7 +37,7 @@ uv sync
 
 ### 2. 環境を構成する
 
-改訂`src/mercedes/conf.py` 或通过 `.env`Ollama のファイル構成`BASE_URL`。
+改訂`src/mercedes/conf.py`または経由`.env`Ollama のファイル構成`BASE_URL`。
 
 ### 3. サービスを開始する
 
@@ -49,7 +50,13 @@ python src/main.py
 使用できます`src/mercedes/tests/test_api.py`テストするか、curl を直接使用するには:
 
 ```bash
+# 默认使用 react 模式
 curl -X POST http://127.0.0.1:8000/api/chat \
      -H "Content-Type: application/json" \
      -d '{"message": "现在几点了？"}'
+
+# 使用 plan 模式
+curl -X POST http://127.0.0.1:8000/api/chat \
+     -H "Content-Type: application/json" \
+     -d '{"message": "现在几点了？", "agent_id": "plan"}'
 ```
