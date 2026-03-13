@@ -1,4 +1,4 @@
-"""定义自定义的推理与动作 (Reasoning and Action, ReAct) 代理。
+"""定义自定义的推理与动作 (Reasoning and Action, ReAct) 代理图。
 
 配合支持工具调用的聊天模型工作。
 """
@@ -17,11 +17,9 @@ from mercedes.agents.react.state import InputState, State
 from mercedes.core.llm import get_llm
 from mercedes.tools import tools
 
-# 定义调用模型的函数
-
 
 async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, List[AIMessage]]:
-    """调用驱动我们“代理”的 LLM。
+    """调用驱动我们"代理"的 LLM。
 
     该函数准备提示词，初始化模型，并处理响应。
 
@@ -59,19 +57,6 @@ async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, List[
     return {"messages": [response]}
 
 
-# 定义一个新图
-
-builder = StateGraph(State, input_schema=InputState, context_schema=Context)
-
-# 定义我们将在其间循环的两个节点
-builder.add_node(call_model)
-builder.add_node("tools", ToolNode(tools))
-
-# 设置入口点为 `call_model`
-# 这意味着该节点是第一个被调用的节点
-builder.add_edge("__start__", "call_model")
-
-
 def route_model_output(state: State) -> Literal["__end__", "tools"]:
     """根据模型的输出确定下一个节点。
 
@@ -92,6 +77,16 @@ def route_model_output(state: State) -> Literal["__end__", "tools"]:
     # 否则执行请求的操作
     return "tools"
 
+
+# 定义一个新图
+builder = StateGraph(State, input_schema=InputState, context_schema=Context)
+
+# 定义我们将在其间循环的两个节点
+builder.add_node(call_model)
+builder.add_node("tools", ToolNode(tools))
+
+# 设置入口点为 `call_model`
+builder.add_edge("__start__", "call_model")
 
 # 添加条件边以确定 `call_model` 之后的下一步
 builder.add_conditional_edges(
