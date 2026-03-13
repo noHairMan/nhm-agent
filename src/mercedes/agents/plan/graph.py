@@ -26,7 +26,7 @@ from mercedes.agents.plan.state import (
     Task,
 )
 from mercedes.core.llm import get_llm
-from mercedes.tools.basic import tools
+from mercedes.tools import tools
 
 # 构建工具名称到工具实例的映射
 _tool_map = {t.name: t for t in tools}
