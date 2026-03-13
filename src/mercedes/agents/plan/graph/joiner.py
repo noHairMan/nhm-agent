@@ -1,6 +1,6 @@
 """决策器节点：根据任务执行结果决定直接回复用户或重新规划。"""
 
-from typing import Dict, Literal, cast
+from typing import Dict, Literal
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
@@ -8,32 +8,24 @@ from langgraph.runtime import Runtime
 from mercedes.agents.plan.context import Context
 from mercedes.agents.plan.state import JoinerAction, JoinerDecision, PlanExecuteState
 from mercedes.core.llm import get_llm
+from mercedes.utils.aimessage import build_past_steps_section, get_latest_human_message
 
 
 async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
     """决策器：根据任务执行结果决定直接回复用户或重新规划。"""
     llm = get_llm(runtime.context.model).with_structured_output(JoinerDecision)
 
-    # 获取用户目标
-    objective = ""
-    for message in state.messages:
-        if isinstance(message, HumanMessage):
-            objective = cast(str, message.content)
-            break
+    objective = get_latest_human_message(state.messages)
 
-    # 构建本轮任务执行摘要
     tasks_summary = "\n".join(
         f"  任务 {t['idx']} [{t['tool']}({t['args']}), 依赖: {t['dependencies']}]"
         f"\n    结果: {state.results.get(t['idx'], '未执行')}"
         for t in state.tasks
     )
 
-    # 构建历史步骤上下文
-    if state.past_steps:
-        past_lines = "\n".join(f"  - {step}: {result}" for step, result in state.past_steps)
-        past_steps_context = f"历史执行步骤：\n{past_lines}\n\n"
-    else:
-        past_steps_context = ""
+    past_steps_context = build_past_steps_section(state.past_steps)
+    if past_steps_context:
+        past_steps_context = past_steps_context.replace("已完成的历史步骤（请勿重复执行）：", "历史执行步骤：") + "\n\n"
 
     user_content = (
         f"用户目标：{objective}\n\n"
@@ -58,7 +50,6 @@ async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
             "replan_count": 0,
         }
 
-    # 超过最大重新规划次数时，强制根据已有信息回复用户
     if state.replan_count >= max_replans:
         all_results = "\n".join(f"{step}: {result}" for step, result in state.past_steps)
         forced_response = (
@@ -71,14 +62,7 @@ async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
             "replan_count": 0,
         }
 
-    # 重新规划：将本轮任务结果归入历史，清空当前轮次状态
-    new_past_steps = [
-        (
-            f"{t['tool']}({t['args']})",
-            state.results.get(t["idx"], "未执行"),
-        )
-        for t in state.tasks
-    ]
+    new_past_steps = [(f"{t['tool']}({t['args']})", state.results.get(t["idx"], "未执行")) for t in state.tasks]
     return {
         "tasks": [],
         "results": {},
