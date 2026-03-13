@@ -16,17 +16,15 @@ class Context:
     planner_prompt: str = field(
         default=prompts.PLANNER_PROMPT,
         metadata={
-            "description": "用于代理交互的规划器提示词。",
+            "description": "用于任务规划的提示词，支持 {tool_descriptions} 和 {past_steps_section} 占位符。",
         },
     )
-
-    replanner_prompt: str = field(
-        default=prompts.RE_PLANNER_PROMPT,
+    joiner_prompt: str = field(
+        default=prompts.JOINER_PROMPT,
         metadata={
-            "description": "用于代理交互的重新规划器提示词。",
+            "description": "用于 Joiner 决策的提示词。",
         },
     )
-
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-sonnet-4-5-20250929",
         metadata={
@@ -39,6 +37,5 @@ class Context:
         for f in fields(self):
             if not f.init:
                 continue
-
             if getattr(self, f.name) == f.default:
                 setattr(self, f.name, os.environ.get(f.name.upper(), f.default))

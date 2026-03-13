@@ -106,4 +106,4 @@ builder.add_edge("tools", "call_model")
 
 checkpointer = InMemorySaver()
 # 将构建器编译为可执行的图
-graph = builder.compile(name="ReAct 代理", checkpointer=checkpointer)
+graph = builder.compile(name="ReAct", checkpointer=checkpointer)
