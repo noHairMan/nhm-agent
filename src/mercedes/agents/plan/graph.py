@@ -20,6 +20,7 @@ from langgraph.runtime import Runtime
 from mercedes.agents.plan.context import Context
 from mercedes.agents.plan.state import (
     InputState,
+    JoinerAction,
     JoinerDecision,
     LLMCompilerPlan,
     PlanExecuteState,
@@ -175,10 +176,26 @@ async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
         ],
     )
 
-    if response.get("action") == "respond" and response.get("response"):
+    max_replans = runtime.context.max_replans
+
+    if response.get("action") == JoinerAction.RESPOND and response.get("response"):
         return {
             "response": response["response"],
             "thought": response.get("thought", ""),
+            "replan_count": 0,
+        }
+
+    # 超过最大重新规划次数时，强制根据已有信息回复用户
+    if state.replan_count >= max_replans:
+        all_results = "\n".join(f"{step}: {result}" for step, result in state.past_steps)
+        forced_response = (
+            response.get("response")
+            or f"根据已收集到的信息：\n{all_results}\n\n如需更准确的结果，请尝试换一种方式提问。"
+        )
+        return {
+            "response": forced_response,
+            "thought": response.get("thought", ""),
+            "replan_count": 0,
         }
 
     # 重新规划：将本轮任务结果归入历史，清空当前轮次状态
@@ -194,6 +211,7 @@ async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
         "results": {},
         "past_steps": new_past_steps,
         "thought": response.get("thought", ""),
+        "replan_count": state.replan_count + 1,
     }
 
 

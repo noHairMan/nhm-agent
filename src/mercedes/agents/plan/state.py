@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import operator
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Optional, Sequence
 
 from langchain_core.messages import AnyMessage
@@ -33,12 +34,21 @@ class LLMCompilerPlan(TypedDict):
     """任务列表，包含工具调用及依赖关系。"""
 
 
+class JoinerAction(str, Enum):
+    """Joiner 的决策动作枚举。"""
+
+    RESPOND = "respond"
+    """已完成目标，直接回复用户。"""
+    REPLAN = "replan"
+    """需要重新规划。"""
+
+
 class JoinerDecision(TypedDict):
     """Joiner 的决策结果。"""
 
     thought: str
     """推理过程。"""
-    action: str
+    action: JoinerAction
     """'respond' 表示已完成目标；'replan' 表示需要重新规划。"""
     response: str | None
     """最终回复内容（action='respond' 时填写）。"""
@@ -69,3 +79,6 @@ class PlanExecuteState(InputState):
 
     thought: str = field(default="")
     """最近一次规划或决策的推理过程。"""
+
+    replan_count: int = field(default=0)
+    """已重新规划的次数，用于防止无限循环。"""

@@ -1,10 +1,10 @@
+from langchain_core.language_models import BaseChatModel
 from langchain_ollama import ChatOllama
-from langchain_openai import ChatOpenAI
 
 from mercedes.utils.conf import settings
 
 
-def get_llm(model: str = None):
+def get_llm(model: str = None) -> BaseChatModel:
     model = model or settings.DEFAULT_MODEL
     return ChatOllama(
         model=model,

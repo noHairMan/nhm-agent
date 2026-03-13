@@ -31,6 +31,12 @@ class Context:
             "description": "用于代理主要交互的语言模型名称。格式应为：provider/model-name。",
         },
     )
+    max_replans: int = field(
+        default=3,
+        metadata={
+            "description": "Joiner 允许重新规划的最大次数，超过后强制根据已有信息回复用户，防止无限循环。",
+        },
+    )
 
     def __post_init__(self) -> None:
         """为未作为参数传递的属性获取环境变量。"""

@@ -18,7 +18,6 @@ def rag_search(query: str) -> str:
     return "\n\n".join(formatted_results)
 
 
-@tool
 def rag_add_document(content: str, metadata: dict = None) -> str:
     """向向量数据库中添加文档。"""
     vector_store = get_vector_store()
