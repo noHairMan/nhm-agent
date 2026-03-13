@@ -1,4 +1,4 @@
-"""Define the state structures for the agent."""
+"""定义代理的状态结构。"""
 
 from __future__ import annotations
 
@@ -13,46 +13,45 @@ from typing_extensions import Annotated
 
 @dataclass
 class InputState:
-    """Defines the input state for the agent, representing a narrower interface to the outside world.
+    """定义代理的输入状态，代表与外界较窄的接口。
 
-    This class is used to define the initial state and structure of incoming data.
+    该类用于定义初始状态和传入数据的结构。
     """
 
     messages: Annotated[Sequence[AnyMessage], add_messages] = field(default_factory=list)
     """
-    Messages tracking the primary execution state of the agent.
+    跟踪代理主要执行状态的消息。
 
-    Typically accumulates a pattern of:
-    1. HumanMessage - user input
-    2. AIMessage with .tool_calls - agent picking tool(s) to use to collect information
-    3. ToolMessage(s) - the responses (or errors) from the executed tools
-    4. AIMessage without .tool_calls - agent responding in unstructured format to the user
-    5. HumanMessage - user responds with the next conversational turn
+    通常积累如下模式：
+    1. HumanMessage - 用户输入
+    2. 带有 .tool_calls 的 AIMessage - 代理选择要使用的工具来收集信息
+    3. ToolMessage(s) - 执行工具后的响应（或错误）
+    4. 不带 .tool_calls 的 AIMessage - 代理以非结构化格式回复用户
+    5. HumanMessage - 用户进行下一轮对话回复
 
-    Steps 2-5 may repeat as needed.
+    步骤 2-5 可根据需要重复。
 
-    The `add_messages` annotation ensures that new messages are merged with existing ones,
-    updating by ID to maintain an "append-only" state unless a message with the same ID is provided.
+    `add_messages` 注解确保新消息与现有消息合并，通过 ID 更新以维持“仅追加”状态，除非提供了具有相同 ID 的消息。
     """
 
 
 @dataclass
 class State(InputState):
-    """Represents the complete state of the agent, extending InputState with additional attributes.
+    """表示代理的完整状态，扩展了 InputState 并增加了额外的属性。
 
-    This class can be used to store any information needed throughout the agent's lifecycle.
+    该类可用于存储代理生命周期中需要的任何信息。
     """
 
     is_last_step: IsLastStep = field(default=False)
     """
-    Indicates whether the current step is the last one before the graph raises an error.
+    指示当前步骤是否是图抛出错误前的最后一步。
 
-    This is a 'managed' variable, controlled by the state machine rather than user code.
-    It is set to 'True' when the step count reaches recursion_limit - 1.
+    这是一个“受管”变量，由状态机而非用户代码控制。
+    当步骤数达到 recursion_limit - 1 时，它被设置为 'True'。
     """
 
-    # Additional attributes can be added here as needed.
-    # Common examples include:
+    # 可根据需要在此处添加额外属性。
+    # 常见示例包括：
     # retrieved_documents: List[Document] = field(default_factory=list)
     # extracted_entities: Dict[str, Any] = field(default_factory=dict)
     # api_connections: Dict[str, Any] = field(default_factory=dict)

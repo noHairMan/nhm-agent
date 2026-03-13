@@ -1,4 +1,4 @@
-"""Define the state structures for the plan-and-execute agent."""
+"""定义计划与执行代理的状态结构。"""
 
 from __future__ import annotations
 
@@ -12,27 +12,27 @@ from typing_extensions import Annotated
 
 
 class Plan(TypedDict):
-    """A list of steps to execute."""
+    """要执行的步骤列表。"""
 
     steps: list[str]
 
 
 @dataclass
 class InputState:
-    """Defines the input state for the agent."""
+    """定义代理的输入状态。"""
 
     messages: Annotated[Sequence[AnyMessage], add_messages] = field(default_factory=list)
 
 
 @dataclass
 class PlanExecuteState(InputState):
-    """Represents the complete state of the plan-and-execute agent."""
+    """表示计划与执行代理的完整状态。"""
 
     plan: list[str] = field(default_factory=list)
-    """The list of steps remaining to be executed."""
+    """待执行的剩余步骤列表。"""
 
     past_steps: Annotated[list[tuple[str, str]], operator.add] = field(default_factory=list)
-    """The list of steps already executed and their results."""
+    """已执行的步骤及其结果的列表。"""
 
     response: str = field(default="")
-    """The final response to the user."""
+    """给用户的最终回复。"""

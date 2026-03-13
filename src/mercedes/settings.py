@@ -10,7 +10,7 @@ DEBUG = False
 OLLAMA_BASE_URL = "http://localhost:11434"
 OPENAI_BASE_URL = "https://api.siliconflow.cn/v1"
 OPENAI_API_KEY = ""
-DEFAULT_MODEL = "gpt-oss:20b"
+DEFAULT_MODEL = "qwen3.5:9b"
 CHROMA_PATH = BASE_DIR / ".." / ".." / ".chroma"
 EMBEDDING_MODEL = "qwen3-embedding:8b"
 

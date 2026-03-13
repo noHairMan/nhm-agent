@@ -1,15 +1,15 @@
-"""Define the Plan-and-Execute agent.
+"""定义计划与执行 (Plan-and-Execute) 代理。
 
-This agent uses a two-step process: first, it creates a plan to solve the user's request,
-and then it executes each step of the plan, re-evaluating and updating the plan as needed.
+该代理使用两步过程：首先，根据用户的请求创建一个计划；
+然后，执行计划的每一步，并根据需要重新评估和更新计划。
 """
 
-from typing import Dict, List, Literal, TypedDict, Union, cast
+from typing import Dict, List, Literal, Optional, TypedDict, Union, cast
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph import StateGraph
-from langgraph.prebuilt import create_react_agent
+from langgraph.graph import END, StateGraph
 from langgraph.runtime import Runtime
 
 from mercedes.agents.plan.context import Context
@@ -23,10 +23,10 @@ from mercedes.tools.basic import tools
 
 
 async def planner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
-    """Plan the steps to solve the user's request."""
+    """规划解决用户请求的步骤。"""
     llm = get_llm(runtime.context.model).with_structured_output(Plan)
 
-    # Get the user's objective from the first human message
+    # 从第一条人类消息中获取用户的目标
     objective = ""
     for message in state.messages:
         if isinstance(message, HumanMessage):
@@ -44,23 +44,22 @@ async def planner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
 
 
 async def executor(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
-    """Execute the next step in the plan."""
+    """执行计划中的下一步。"""
+    if not state.plan:
+        return {"response": "抱歉，我找不到可执行的计划。"}
+
     task = state.plan[0]
     llm = get_llm(runtime.context.model)
 
-    # We use a simple ReAct agent to execute each task
-    # This can be more complex if needed
-    agent_executor = create_react_agent(llm, tools)
+    agent_executor = create_agent(llm, tools)
 
-    # Prepare task input
-    # Include context from past steps
     past_steps_context = "\n".join([f"Step: {s}\nResult: {r}" for s, r in state.past_steps])
-    task_input = f"""Current task: {task}
+    task_input = f"""当前任务: {task}
 
-Past steps context:
+以往步骤上下文:
 {past_steps_context}
 
-Please solve the current task."""
+请解决当前任务。"""
 
     result = await agent_executor.ainvoke({"messages": [HumanMessage(content=task_input)]})
 
@@ -70,9 +69,23 @@ Please solve the current task."""
     }
 
 
-async def replanner(state: PlanExecuteState, runtime: Runtime[Context]) -> Union[Dict, List]:
-    """Re-evaluate the plan based on the results of the execution."""
-    llm = get_llm(runtime.context.model).with_structured_output(Plan)
+# --- 修复：扁平化结构，让 LLM 更容易判断何时给出最终答案 ---
+class Act(TypedDict):
+    """要执行的操作：提供最终回复或新计划。"""
+
+    action: Literal["respond", "replan"]
+    """'respond' 表示已达成目标；'replan' 表示需要更多步骤。"""
+
+    response: Optional[str]
+    """给用户的最终回复。当 action='respond' 时需要。"""
+
+    steps: Optional[List[str]]
+    """修改后的计划步骤。当 action='replan' 时需要。"""
+
+
+async def replanner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
+    """根据执行结果重新评估计划。"""
+    llm = get_llm(runtime.context.model).with_structured_output(Act)
 
     objective = ""
     for message in state.messages:
@@ -88,50 +101,27 @@ async def replanner(state: PlanExecuteState, runtime: Runtime[Context]) -> Union
         past_steps=past_steps,
     )
 
-    # Since we want to allow the LLM to provide a final response or a new plan,
-    # and we are using with_structured_output(Plan), we need to handle the case
-    # where it might not want to provide a plan but a response.
-    # However, create_react_agent might be better for executor.
-    # For replanner, we'll try to get Plan. If it's a final answer, we should have a way to detect it.
-    # A common pattern is to have a Response model as well.
-
-    # Let's simplify: the replanner prompt says "respond with the final answer instead of a plan".
-    # with_structured_output might force a Plan.
-    # Let's use a Union type for structured output if possible, or just a more flexible schema.
-
-    class Response(TypedDict):
-        """Response to the user."""
-
-        response: str
-
-    class Act(TypedDict):
-        """Action to take."""
-
-        action: Union[Plan, Response]
-
-    llm_act = get_llm(runtime.context.model).with_structured_output(Act)
-
-    response = await llm_act.ainvoke(
+    response = await llm.ainvoke(
         [
             SystemMessage(content=system_prompt),
         ],
     )
 
-    action = response["action"]
-    if "response" in action:
-        return {"response": action["response"]}
+    if response.get("action") == "respond" and response.get("response"):
+        return {"response": response["response"], "plan": []}
     else:
-        return {"plan": action["steps"]}
+        new_steps = response.get("steps") or []
+        return {"plan": new_steps}
 
 
 def should_continue(state: PlanExecuteState) -> Literal["executor", "__end__"]:
-    """Determine whether to continue execution or finish."""
-    if state.response:
+    """确定是继续执行还是结束。"""
+    if state.response or not state.plan:
         return "__end__"
     return "executor"
 
 
-# Build the graph
+# 构建图
 builder = StateGraph(PlanExecuteState, input_schema=InputState, context_schema=Context)
 
 builder.add_node("planner", planner)
@@ -148,4 +138,4 @@ builder.add_conditional_edges(
 )
 
 checkpointer = InMemorySaver()
-graph = builder.compile(name="Plan-and-Execute Agent", checkpointer=checkpointer)
+graph = builder.compile(name="计划与执行代理", checkpointer=checkpointer)

@@ -1,6 +1,6 @@
-"""Define a custom Reasoning and Action agent.
+"""定义自定义的推理与动作 (Reasoning and Action, ReAct) 代理。
 
-Works with a chat model with tool calling support.
+配合支持工具调用的聊天模型工作。
 """
 
 from datetime import UTC, datetime
@@ -17,94 +17,93 @@ from mercedes.agents.react.state import InputState, State
 from mercedes.core.llm import get_llm
 from mercedes.tools.basic import tools
 
-# Define the function that calls the model
+# 定义调用模型的函数
 
 
 async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, List[AIMessage]]:
-    """Call the LLM powering our "agent".
+    """调用驱动我们“代理”的 LLM。
 
-    This function prepares the prompt, initializes the model, and processes the response.
+    该函数准备提示词，初始化模型，并处理响应。
 
-    Args:
-        state (State): The current state of the conversation.
-        config (RunnableConfig): Configuration for the model run.
+    参数:
+        state (State): 对话的当前状态。
+        runtime (Runtime[Context]): 运行时的上下文信息。
 
-    Returns:
-        dict: A dictionary containing the model's response message.
+    返回:
+        dict: 包含模型响应消息的字典。
     """
-    # Initialize the model with tool binding. Change the model or add more tools here.
+    # 使用工具绑定初始化模型。在此更改模型或添加更多工具。
     model = get_llm(runtime.context.model).bind_tools(tools)
 
-    # Format the system prompt. Customize this to change the agent's behavior.
+    # 格式化系统提示词。自定义此处以更改代理的行为。
     system_message = runtime.context.system_prompt.format(system_time=datetime.now(tz=UTC).isoformat())
 
-    # Get the model's response
+    # 获取模型响应
     response = cast(  # type: ignore[redundant-cast]
         AIMessage,
         await model.ainvoke([{"role": "system", "content": system_message}, *state.messages]),
     )
 
-    # Handle the case when it's the last step and the model still wants to use a tool
+    # 处理最后一步且模型仍想使用工具的情况
     if state.is_last_step and response.tool_calls:
         return {
             "messages": [
                 AIMessage(
                     id=response.id,
-                    content="Sorry, I could not find an answer to your question in the specified number of steps.",
+                    content="抱歉，我无法在指定的步数内找到您问题的答案。",
                 ),
             ],
         }
 
-    # Return the model's response as a list to be added to existing messages
+    # 将模型的响应作为列表返回，以便添加到现有消息中
     return {"messages": [response]}
 
 
-# Define a new graph
+# 定义一个新图
 
 builder = StateGraph(State, input_schema=InputState, context_schema=Context)
 
-# Define the two nodes we will cycle between
+# 定义我们将在其间循环的两个节点
 builder.add_node(call_model)
 builder.add_node("tools", ToolNode(tools))
 
-# Set the entrypoint as `call_model`
-# This means that this node is the first one called
+# 设置入口点为 `call_model`
+# 这意味着该节点是第一个被调用的节点
 builder.add_edge("__start__", "call_model")
 
 
 def route_model_output(state: State) -> Literal["__end__", "tools"]:
-    """Determine the next node based on the model's output.
+    """根据模型的输出确定下一个节点。
 
-    This function checks if the model's last message contains tool calls.
+    该函数检查模型的最后一条消息是否包含工具调用。
 
-    Args:
-        state (State): The current state of the conversation.
+    参数:
+        state (State): 对话的当前状态。
 
-    Returns:
-        str: The name of the next node to call ("__end__" or "tools").
+    返回:
+        str: 下一个要调用的节点名称（"__end__" 或 "tools"）。
     """
     last_message = state.messages[-1]
     if not isinstance(last_message, AIMessage):
-        raise ValueError(f"Expected AIMessage in output edges, but got {type(last_message).__name__}")
-    # If there is no tool call, then we finish
+        raise ValueError(f"预期输出边中为 AIMessage，但得到的是 {type(last_message).__name__}")
+    # 如果没有工具调用，则结束
     if not last_message.tool_calls:
         return "__end__"
-    # Otherwise we execute the requested actions
+    # 否则执行请求的操作
     return "tools"
 
 
-# Add a conditional edge to determine the next step after `call_model`
+# 添加条件边以确定 `call_model` 之后的下一步
 builder.add_conditional_edges(
     "call_model",
-    # After call_model finishes running, the next node(s) are scheduled
-    # based on the output from route_model_output
+    # call_model 运行结束后，根据 route_model_output 的输出安排下一个节点
     route_model_output,
 )
 
-# Add a normal edge from `tools` to `call_model`
-# This creates a cycle: after using tools, we always return to the model
+# 添加从 `tools` 到 `call_model` 的普通边
+# 这创建了一个循环：使用工具后，我们总是返回到模型
 builder.add_edge("tools", "call_model")
 
 checkpointer = InMemorySaver()
-# Compile the builder into an executable graph
-graph = builder.compile(name="ReAct Agent", checkpointer=checkpointer)
+# 将构建器编译为可执行的图
+graph = builder.compile(name="ReAct 代理", checkpointer=checkpointer)

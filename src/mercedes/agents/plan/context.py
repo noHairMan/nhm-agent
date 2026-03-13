@@ -1,4 +1,4 @@
-"""Define the configurable parameters for the agent."""
+"""定义代理的可配置参数。"""
 
 from __future__ import annotations
 
@@ -11,32 +11,31 @@ from mercedes.agents.plan import prompts
 
 @dataclass(kw_only=True)
 class Context:
-    """The context for the agent."""
+    """代理的上下文。"""
 
     planner_prompt: str = field(
         default=prompts.PLANNER_PROMPT,
         metadata={
-            "description": "The planner prompt to use for the agent's interactions.",
+            "description": "用于代理交互的规划器提示词。",
         },
     )
 
     replanner_prompt: str = field(
         default=prompts.RE_PLANNER_PROMPT,
         metadata={
-            "description": "The replanner prompt to use for the agent's interactions.",
+            "description": "用于代理交互的重新规划器提示词。",
         },
     )
 
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-sonnet-4-5-20250929",
         metadata={
-            "description": "The name of the language model to use for the agent's main interactions. "
-            "Should be in the form: provider/model-name.",
+            "description": "用于代理主要交互的语言模型名称。格式应为：provider/model-name。",
         },
     )
 
     def __post_init__(self) -> None:
-        """Fetch env vars for attributes that were not passed as args."""
+        """为未作为参数传递的属性获取环境变量。"""
         for f in fields(self):
             if not f.init:
                 continue

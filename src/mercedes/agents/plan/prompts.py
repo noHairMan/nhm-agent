@@ -1,20 +1,22 @@
-"""Default prompts used by the plan-and-execute agent."""
+"""计划与执行代理使用的默认提示词。"""
 
-PLANNER_PROMPT = """For the given objective, come up with a simple step by step plan. \
-This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps. \
-The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."""
+PLANNER_PROMPT = """针对给定的目标，制定一个简单的分步计划。 \
+该计划应包含单个任务，如果正确执行，将产生正确的答案。不要添加任何多余的步骤。 \
+最后一步的结果应该是最终答案。确保每一步都包含所需的所有信息 - 不要跳过步骤。"""
 
-RE_PLANNER_PROMPT = """For the given objective, come up with a revised plan. \
-The plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps. \
-The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps.
+RE_PLANNER_PROMPT = """针对给定的目标，制定一个修订后的计划。 \
+该计划应包含单个任务，如果正确执行，将产生正确的答案。不要添加任何多余的步骤。 \
+最后一步的结果应该是最终答案。确保每一步都包含所需的所有信息 - 不要跳过步骤。
 
-Your objective was this:
+你的目标是：
 {objective}
 
-Your original plan was this:
+你原来的计划是：
 {plan}
 
-You have currently done the following steps:
+你目前已经完成了以下步骤：
 {past_steps}
 
-Update the plan accordingly. If no more steps are needed and you can provide the final answer, please respond with the final answer instead of a plan."""
+据此更新计划。
+- 如果根据过去的步骤已经完全实现了目标，请设置 action='respond' 并在 'response' 中提供最终答案。
+- 如果仍然需要更多步骤，请设置 action='replan' 并在 'steps' 中提供剩余步骤。不要重复已经完成的步骤。"""
