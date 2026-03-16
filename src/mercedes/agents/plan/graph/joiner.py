@@ -63,8 +63,9 @@ async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
         }
 
     new_past_steps = [(f"{t['tool']}({t['args']})", state.results.get(t["idx"], "未执行")) for t in state.tasks]
+    new_tasks = response.get("tasks") or []
     return {
-        "tasks": [],
+        "tasks": new_tasks,
         "results": {},
         "past_steps": new_past_steps,
         "thought": response.get("thought", ""),
@@ -72,8 +73,8 @@ async def joiner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
     }
 
 
-def should_continue(state: PlanExecuteState) -> Literal["planner", "__end__"]:
+def should_continue(state: PlanExecuteState) -> Literal["task_fetching_unit", "__end__"]:
     """根据 Joiner 的决策结果决定流程走向。"""
     if state.response:
         return "__end__"
-    return "planner"
+    return "task_fetching_unit"

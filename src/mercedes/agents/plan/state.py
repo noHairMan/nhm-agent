@@ -52,6 +52,8 @@ class JoinerDecision(TypedDict):
     """'respond' 表示已完成目标；'replan' 表示需要重新规划。"""
     response: str | None
     """最终回复内容（action='respond' 时填写）。"""
+    tasks: list[Task] | None
+    """重新规划的任务 DAG（action='replan' 时填写）。"""
 
 
 @dataclass
