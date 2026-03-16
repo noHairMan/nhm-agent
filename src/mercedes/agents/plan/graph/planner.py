@@ -1,5 +1,6 @@
 """规划器节点：生成带依赖关系的任务 DAG。"""
 
+from string import Template
 from typing import Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -24,7 +25,7 @@ async def planner(state: PlanExecuteState, runtime: Runtime[Context]) -> Dict:
 
     objective = get_latest_human_message(state.messages)
 
-    system_prompt = runtime.context.planner_prompt.format(
+    system_prompt = Template(runtime.context.planner_prompt).safe_substitute(
         tool_descriptions=tool_descriptions,
         past_steps_section=build_past_steps_section(state.past_steps),
     )

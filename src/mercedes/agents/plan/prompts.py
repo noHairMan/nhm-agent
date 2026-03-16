@@ -5,7 +5,7 @@ PLANNER_PROMPT = """你是一个高效的任务规划助手，基于 LLMCompiler
 你的任务是：根据用户请求，生成一个任务 DAG（有向无环图），通过并行执行独立任务来高效完成目标。
 
 可用工具：
-{tool_descriptions}
+${tool_descriptions}
 
 规划规则：
 1. 每个任务有唯一的整数索引（从 1 开始递增）
@@ -14,7 +14,7 @@ PLANNER_PROMPT = """你是一个高效的任务规划助手，基于 LLMCompiler
 4. 生成最少数量的必要任务，不要添加冗余步骤
 5. 确保每个任务的参数包含执行该任务所需的全部信息
 
-{past_steps_section}"""
+${past_steps_section}"""
 
 JOINER_PROMPT = """你是一个决策助手（replanner），负责根据任务执行结果决定下一步行动。
 

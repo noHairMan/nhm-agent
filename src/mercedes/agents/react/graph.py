@@ -4,6 +4,7 @@
 """
 
 from datetime import UTC, datetime
+from string import Template
 from typing import Dict, List, Literal, cast
 
 from langchain_core.messages import AIMessage
@@ -34,7 +35,9 @@ async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, List[
     model = get_llm(runtime.context.model).bind_tools(tools)
 
     # 格式化系统提示词。自定义此处以更改代理的行为。
-    system_message = runtime.context.system_prompt.format(system_time=datetime.now(tz=UTC).isoformat())
+    system_message = Template(runtime.context.system_prompt).safe_substitute(
+        system_time=datetime.now(tz=UTC).isoformat(),
+    )
 
     # 获取模型响应
     response = cast(  # type: ignore[redundant-cast]

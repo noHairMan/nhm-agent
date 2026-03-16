@@ -1,16 +1,16 @@
 import asyncio
 import os
 
-import uvicorn
-
 
 def get_unicorn_server():
+    import uvicorn
+
     from mercedes.utils.conf import settings
 
     config = uvicorn.Config(
         "mercedes.app:app",
         host="0.0.0.0",
-        port=4000,
+        port=8000,
         reload=True,
         log_config=settings.LOGGING,
     )
