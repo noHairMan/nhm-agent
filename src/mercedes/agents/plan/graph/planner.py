@@ -11,7 +11,6 @@ from mercedes.core.llm import get_llm
 from mercedes.tools import tools
 from mercedes.utils.aimessage import build_past_steps_section, get_latest_human_message
 
-# 生成工具描述字符串（供 Planner 提示词使用）
 tool_descriptions = "\n".join(f"- {t.name}: {t.description}" for t in tools)
 
 

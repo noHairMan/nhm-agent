@@ -18,7 +18,6 @@ from mercedes.agents.plan.graph.planner import planner
 from mercedes.agents.plan.graph.task_fetching_unit import task_fetching_unit
 from mercedes.agents.plan.state import InputState, PlanExecuteState
 
-# 构建图
 builder = StateGraph(PlanExecuteState, input_schema=InputState, context_schema=Context)
 
 builder.add_node("planner", planner)
