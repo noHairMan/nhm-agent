@@ -1,7 +1,5 @@
 """定义代理的可配置参数。"""
 
-from __future__ import annotations
-
 import os
 from dataclasses import dataclass, field, fields
 from typing import Annotated
