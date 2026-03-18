@@ -24,7 +24,7 @@ class Context:
         },
     )
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
-        default="anthropic/claude-sonnet-4-5-20250929",
+        default="qwen3.5:9b",
         metadata={
             "description": "用于代理主要交互的语言模型名称。格式应为：provider/model-name。",
         },
