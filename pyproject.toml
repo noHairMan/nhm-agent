@@ -10,7 +10,7 @@ dependencies = [
     "ddgs>=9.10.0",
     "duckduckgo-search>=8.1.1",
     "dynaconf>=3.2.12",
-    "fastapi>=0.127.0",
+    "fastapi[standard]>=0.127.0",
     "httpx>=0.28.1",
     "langchain>=1.2.0",
     "langchain-chroma>=1.1.0",
@@ -29,6 +29,9 @@ dev = [
     "langgraph-cli[inmem]>=0.4.11",
     "pre-commit>=4.5.1",
 ]
+
+[tool.fastapi]
+entrypoint = "src.mercedes.app:app"
 
 [tool.uv.sources]
 
